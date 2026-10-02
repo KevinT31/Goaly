@@ -1,32 +1,83 @@
-# Goaly — Architecture Notes
+# Goaly — Architecture
 
-## Product Layers
+## 1. Main Layers
 
-1. **Mobile Client** — financial workflows and user interaction.
-2. **API** — business logic and authenticated operations.
-3. **Persistence** — relational financial data.
-4. **Integrations** — storage, email, realtime and external identity.
+### Mobile client
 
-## Logical Flow
+Expo/React Native application with Zustand state, secure storage and local guest-mode persistence.
+
+### Backend API
+
+NestJS service responsible for authenticated business operations.
+
+### Persistence
+
+Prisma over PostgreSQL.
+
+### AI parsing/recommendation
+
+Provider chain:
+
+1. DeepSeek when configured
+2. local Ollama
+3. deterministic heuristic fallback
+
+### Integrations
+
+The backend contains paths for object storage, email, realtime and external authentication.
+
+## 2. Diagram
 
 ```mermaid
 flowchart TB
-    User --> Mobile[Expo / React Native]
-    Mobile --> API[NestJS API]
+    User --> Mobile
+    Mobile --> SecureStore
+    Mobile --> GuestStore[Guest / Local Store]
+    Mobile --> API
 
-    API --> Auth[Auth]
-    API --> ORM[Prisma]
-    ORM --> DB[PostgreSQL]
+    API --> Auth
+    API --> Prisma
+    Prisma --> Postgres[(PostgreSQL)]
 
-    API --> Realtime[Socket.IO]
-    API --> Storage[Object Storage]
-    API --> Email[Email]
+    API --> AI
+    AI --> DeepSeek
+    AI --> Ollama
+    AI --> Rules[Deterministic Rules]
+
+    API --> Socket[Socket.IO]
+    API --> S3[S3-compatible Storage]
+    API --> SES[Email]
 ```
 
-## Design Considerations
+## 3. State Boundary
 
-- Guest/local and authenticated/server-backed modes are explicit.
-- Backend failures should not silently change the application's data model.
-- Sensitive tokens use secure device storage.
-- Financial records are modeled relationally.
-- External integrations are isolated behind service boundaries.
+The system deliberately distinguishes:
+
+- guest/local data
+- authenticated/server data
+
+Backend failure does not silently switch an authenticated user into another data source.
+
+## 4. Security Considerations
+
+The private backend uses mechanisms including:
+
+- JWT
+- Argon2
+- Helmet
+- throttling
+- server-side validation
+
+The mobile layer uses secure storage for sensitive authentication material.
+
+## 5. Production Boundaries
+
+The private documentation explicitly identifies integrations that need owner-controlled production setup:
+
+- Google OAuth credentials
+- payment provider credentials
+- email configuration
+- push credentials
+- physical-device validation
+
+This architecture note describes the design without publishing environment values or operational secrets.
