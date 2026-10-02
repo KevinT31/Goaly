@@ -1,32 +1,42 @@
+<div align="center">
+
 # Goaly
 
-> **Public project showcase.** The implementation repository remains private while this repository presents the architecture and product scope.
+### Personal Finance · Mobile · Backend · AI-Assisted Input
+
+**Public engineering showcase — application source remains private**
+
+[Architecture](./docs/ARCHITECTURE.md) · [Project status](./docs/STATUS.md)
+
+</div>
+
+---
 
 ## Overview
 
-**Goaly** is a mobile personal-finance platform built around everyday financial organization: accounts, transactions, budgets, goals, recurring obligations and assisted data entry.
+**Goaly** is a personal-finance mobile platform built around day-to-day financial organization.
 
-The system combines an **Expo / React Native** application with a formal **NestJS + PostgreSQL** backend architecture.
+The private project combines an **Expo / React Native** application with a **NestJS + Prisma + PostgreSQL** backend and local/cloud integration paths.
 
-## Product Capabilities
+## Product Scope
 
-- Accounts and financial movements
-- Transfers
-- Categories
-- Budgets
-- Savings goals
-- Debts
-- Recurring payments
-- Subscriptions
-- OCR-assisted input
-- Voice-assisted input
-- Recommendations
-- Notifications
-- Authentication
-- Google OAuth integration path
-- Password recovery
-- Data export
-- Account deletion
+Goaly covers:
+
+- accounts
+- transfers and movements
+- categories
+- budgets
+- goals
+- debts
+- recurring payments
+- subscriptions
+- OCR-assisted entry
+- voice-assisted entry
+- recommendations
+- notifications
+- authentication and recovery
+- export
+- account deletion
 
 ## Architecture
 
@@ -34,67 +44,103 @@ The system combines an **Expo / React Native** application with a formal **NestJ
 flowchart LR
     Mobile[Expo / React Native] --> API[NestJS API]
 
-    API --> Auth[Authentication]
-    API --> Prisma[Prisma ORM]
-    Prisma --> DB[PostgreSQL]
+    API --> Auth[JWT / OAuth Layer]
+    API --> ORM[Prisma]
+    ORM --> DB[(PostgreSQL)]
+
+    API --> AI[AI Parsing / Recommendation Layer]
+    AI --> DeepSeek[DeepSeek]
+    AI --> Ollama[Ollama]
+    AI --> Heuristic[Deterministic Fallback]
 
     API --> Storage[Object Storage]
-    API --> Email[Email Services]
-    API --> Notifications[Notifications]
+    API --> Email[Email]
     API --> Realtime[Socket.IO]
 
-    Mobile --> Secure[Secure Local Storage]
+    Mobile --> Secure[SecureStore]
+    Mobile --> Local[Local Guest Data]
 ```
+
+## Product & UX Engineering
+
+The private mobile app includes work around:
+
+- multilingual UI
+- onboarding that can be skipped
+- new-user empty states with real CTAs
+- guest/local usage
+- authenticated API-backed usage
+- mobile system-bar handling
+- Google-auth UI flow
+- recommendations as an optional feature rather than a blocking step
+
+The guest and authenticated models are intentionally explicit: **an authenticated session does not silently fall back to local data if the backend fails.**
+
+## AI-Assisted Input
+
+Voice/movement parsing uses a layered provider strategy:
+
+```text
+DeepSeek
+   ↓ if unavailable
+Ollama local
+   ↓ if unavailable
+Deterministic heuristic
+```
+
+The app remains functional without a cloud AI key.
 
 ## Technology
 
 | Area | Technologies |
 |---|---|
-| Mobile | Expo · React Native · TypeScript |
+| Mobile | Expo SDK 54 · React Native · TypeScript |
 | State | Zustand |
-| Backend | NestJS |
+| Backend | NestJS 11 |
 | ORM | Prisma |
 | Database | PostgreSQL |
 | Realtime | Socket.IO |
-| Authentication | JWT · Google OAuth integration |
-| Cloud Services | AWS SDK · S3 · SES |
-| Testing | Jest · E2E Tests |
+| Security | JWT · Argon2 · Helmet · throttling |
+| Cloud integration paths | AWS S3 · SES |
+| AI | DeepSeek integration · Ollama fallback |
+| Testing | Jest · E2E tests |
 | Infrastructure | Docker |
 
-## Engineering Highlights
+## Quality & Verification
 
-### Mobile + Backend Separation
+The private project includes:
 
-The project is structured as a mobile client backed by a formal API rather than placing all business logic in the application.
+- frontend typecheck
+- lint
+- Jest tests
+- Expo Doctor/export checks
+- backend lint/build/unit/E2E checks
+- CI with PostgreSQL
 
-### Local / Guest Experience
+A documented mobile UX phase closed with **typecheck, lint and 12/12 tests passing**.
 
-Guest mode can preserve information locally, while authenticated sessions use the backend without silently falling back to local data when the server fails.
+## Engineering Decisions
 
-### Security-Oriented Mobile Storage
+**Offline/guest behavior is explicit.** Local guest data is a product mode, not a hidden fallback for backend failure.
 
-Authentication state is designed around secure device storage for sensitive tokens.
+**AI is optional.** The parsing/recommendation pipeline degrades from cloud AI to local AI to deterministic logic.
 
-### Cloud-Ready Integrations
+**External identity is configuration-dependent.** Google OAuth code exists, but correct production credentials must be supplied by the owner.
 
-The backend contains integration paths for object storage, email delivery and third-party authentication.
+**Native changes require native rebuilds.** Changes affecting Android system UI are correctly tracked as rebuild-dependent rather than pretending they can ship through OTA alone.
 
-### Quality Checks
+## Current Status
 
-The private project includes lint, typecheck, build, unit-test and end-to-end verification flows.
+The product has substantial mobile/backend implementation, but several external integrations still require owner credentials or final physical-device validation.
 
-## Project Status
+[See the implementation matrix →](./docs/STATUS.md)
 
-Goaly is an actively developed product architecture. Some external integrations require owner credentials and physical-device validation before they can be considered production-complete.
+## Why the Source Is Private
 
-## Repository Strategy
-
-Financial application code, authentication implementation and environment configuration remain private. This repository intentionally serves only as a public engineering showcase.
-
-## More Documentation
-
-[Architecture notes](./docs/ARCHITECTURE.md)
+The source includes authentication, financial domain models, environment contracts and external integration configuration that are not appropriate for a public repository.
 
 ---
 
-**Private source repository · Public FinTech/mobile case study**
+### What this project demonstrates
+
+**Mobile product engineering · backend architecture · personal-finance domain modeling · graceful AI fallback · authentication · UX quality**
