@@ -91,6 +91,10 @@ Goaly is an actively developed product architecture. Some external integrations 
 
 Financial application code, authentication implementation and environment configuration remain private. This repository intentionally serves only as a public engineering showcase.
 
+## More Documentation
+
+[Architecture notes](./docs/ARCHITECTURE.md)
+
 ---
 
 **Private source repository · Public FinTech/mobile case study**
